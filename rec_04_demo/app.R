@@ -34,8 +34,9 @@ ui <- navbarPage(
                              selectInput(
                                  "var_plot",
                                  "Choose a Response Category",
-                                 choices = c("Enrollment" = "enrollment", 
-                                   "Workload per Week" = "hours")
+                                 # choices = c("Enrollment" = "enrollment", 
+                                 #   "Workload per Week" = "hours")
+                                   choices = c(Voted = "voted")
                              ),
                              width = 300),
                          plotOutput("line_plot",
@@ -79,6 +80,15 @@ ui <- navbarPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
     
+
+    output$object <- renderPlot{{
+        cces %>% 
+            mutate(binary = ifelse(voted == "Voted", TRUE, FALSE)) %>% 
+            ggplot(aes(x = age, y = faminc)) +
+              geom_col()
+    }}        
+    
+    
     output$link <- renderUI({
         tags$a(href="https://beaumeche.shinyapps.io/Shiny-Recitation-Demo-wk4/", "Here is the link to this repo")
     })
@@ -86,8 +96,10 @@ server <- function(input, output) {
     output$line_plot <- renderPlot({
         
         ifelse(input$var_plot == "enrollment",
-               z <- qscores$enrollment,
+               z <- cces$voted,
                z <- qscores$rating)
+        
+        ifelse(input$var_plot == TRUE, z = TRUE, z = FALSE)
         
             qscores %>% 
                 ggplot(aes(x = hours,
